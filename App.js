@@ -1,21 +1,51 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import HomeScreen from './screens/home'
+import ScanQrScreen from './screens/scanqr'
+// import DetailsScreen from './screens/details'
+// import DownloaderScreen from './screens/downloader'
+// import DocumentationScreen from './screens/documentation'
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+
+const Stack = createNativeStackNavigator();
+
+const HomeStack = (props) => {
+   return (
+      <Stack.Navigator>
+         <Stack.Screen 
+            name="Home" 
+            options={ (props) => ({
+               headerTitle: 'Documentación',
+               headerTitleAlign: 'center',
+            })}
+         >
+            {(props) => (<HomeScreen {...props}/>)}
+         </Stack.Screen>
+         <Stack.Screen 
+            name="Qr" 
+            options={ (props) => ({
+               headerTitle: 'Escanear QR',
+               headerTitleAlign: 'center',
+            })}
+         >
+            {(props) => (<ScanQrScreen {...props}/>)}
+         </Stack.Screen>
+      </Stack.Navigator>
+   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+
+
+export default function App() {
+   return (
+      <>
+         <StatusBar style="auto"/>
+         <NavigationContainer>
+            <HomeStack/>   
+         </NavigationContainer>
+      </>
+   );
+}
