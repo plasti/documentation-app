@@ -7,7 +7,8 @@ import {
 	TextInput,
 	KeyboardAvoidingView,
 	ScrollView,
-	TouchableNativeFeedback
+	TouchableNativeFeedback,
+	Alert
 } from 'react-native'
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
@@ -25,16 +26,20 @@ export default class Home extends React.Component {
 				this.next()
 			})
 		}else {
-			alert('Código QR no compatible')
+			Alert.alert('Error de QR', 'El código QR no compatible')
 		}
 	}
 
 
 	next() {
 		if(this.state.url != null && this.state.url != '') {
-			console.log('nav')
+			if(this.state.url.indexOf('back') > -1) {
+				this.props.navigation.replace('Details', {url: this.state.url, getContent: this.props.route.params.getContent})
+			}else {
+				Alert.alert('URL no válida', 'La URL no es compatible')
+			}
 		}else {
-			alert('URL no válida')
+			Alert.alert('URL no válida', 'La URL no es compatible')
 		}
 	}
 
@@ -59,7 +64,7 @@ export default class Home extends React.Component {
 				        onChangeText={newText => this.setState({url: newText})}
 				        value={this.state.url}
 				      />
-				      <TouchableNativeFeedback onPress={() => console.log(this.state.url)}>
+				      <TouchableNativeFeedback onPress={() => this.next()}>
 				      	<View style={styles.containerBtn}>
 				      		<Text style={styles.btn}>Verificar ❯</Text>
 				      	</View>

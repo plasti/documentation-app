@@ -1,53 +1,28 @@
 import React from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableNativeFeedback, Dimensions} from 'react-native'
+import {View, Text, StyleSheet, FlatList, TouchableNativeFeedback, Dimensions, ActivityIndicator, Image, Platform} from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class Home extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {
+			loading: true,
 			delete: false,
-			docs: [
-				{
-					title: 'Affogato',
-				},
-				{
-					title: 'Affogato',
-				},
-				{
-					title: 'Affogato',
-				},
-				{
-					title: 'Affogato',
-				},
-				{
-					title: 'Affogato',
-				},
-				{
-					title: 'Affogato',
-				},
-				{
-					title: 'Affogato',
-				},
-				{
-					title: 'Affogato',
-				},
-				{
-					title: 'Affogato',
-				},
-				{
-					title: 'Affogato',
-				},
-				{
-					title: 'Affogato',
-				},
-
-				{
-					title: 'Affogato',
-				}
-			]
+			docs: []
 		}
 	}
 
+	componentDidMount() {
+		this.getContent()
+		// AsyncStorage.setItem('@sites', '')
+	}
+
+	getContent = () => {
+		AsyncStorage.getItem('@sites').then((sites) => {
+			sites = (sites != '' && sites != null && sites != undefined) ? JSON.parse(sites) : []
+			this.setState({loading: false, docs: sites})
+		})
+	}
 
 	renderBtn() {
 		if(this.state.delete){
@@ -58,7 +33,7 @@ export default class Home extends React.Component {
 			)
 		}else {
 			return (
-				<TouchableNativeFeedback background={'#000'} onPress={() => this.props.navigation.navigate('Qr')}>
+				<TouchableNativeFeedback background={'#000'} onPress={() => this.props.navigation.navigate('Qr', {getContent: this.getContent})}>
 			    	<Text style={styles.btn}>+</Text>
 			    </TouchableNativeFeedback>
 			)
@@ -68,28 +43,40 @@ export default class Home extends React.Component {
 	render() {
 		return (
 			<View style={styles.container}>
-				<FlatList
-					style={{paddingTop: 10}}
-					contentContainerStyle={{ paddingBottom: 30 }}
-			        data={this.state.docs}
-			        numColumns={2}
-			        keyExtractor={(item, i) => i}
-			        renderItem={({item}) => (
-			        	<TouchableNativeFeedback onPress={() => console.log(item)}>
-			        		<View style={styles.card}>
-			        			<Text>{item.title}</Text>
-			        		</View>
-			        	</TouchableNativeFeedback>
-			        )}
-			        ListEmptyComponent={
-							<TouchableNativeFeedback onPress={() => console.log('add')}>
-								<View style={styles.empty}>
-							    	<Text>Agregar tu primera documentación</Text>
-								</View>
-						    </TouchableNativeFeedback>
-			        }
-			    />
-			    {this.renderBtn()}
+				{this.state.loading ? (
+					<View style={{width: '100%', height: Dimensions.get('window').height - 200, justifyContent: 'center', alignItems: 'center'}}>
+						<View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 10}}>
+							<ActivityIndicator size="small" color="#111"/>
+							<Text style={{marginLeft: 10}}>Cargando...</Text>
+						</View>
+					</View>
+				) : (
+					<FlatList
+						style={{paddingTop: 10}}
+						contentContainerStyle={{ paddingBottom: 30 }}
+				        data={this.state.docs}
+				        numColumns={2}
+				        keyExtractor={(item, i) => i}
+				        renderItem={({item}) => (
+				        	<TouchableNativeFeedback onPress={() => console.log(item)}>
+				        		<View style={[styles.card, {backgroundColor: item.primario}]}>
+				        			<Image
+											  source={{ uri: ((Platform.OS != 'ios') ? 'file://' : '')+item.logo }}
+											  style={styles.logo}
+											/>
+				        		</View>
+				        	</TouchableNativeFeedback>
+				        )}
+				        ListEmptyComponent={
+									<TouchableNativeFeedback onPress={() => this.props.navigation.navigate('Qr', {getContent: this.getContent})}>
+										<View style={styles.empty}>
+									    	<Text>Agregar tu primera documentación</Text>
+										</View>
+								  </TouchableNativeFeedback>
+				        }
+				    />
+				)}
+			  {this.renderBtn()}
 			</View>
 		)
 	}
@@ -118,15 +105,23 @@ const styles = StyleSheet.create({
   card: {
   	flex: 1,
   	height: Dimensions.get('window').width / 2 - 40,
-  	margin: 10,
+  	marginTop: 10,
+  	marginBottom: 10,
+  	marginLeft: 15,
+  	marginRight: 15,
   	justifyContent: 'center',
   	alignItems: 'center',
-  	borderRadius: 5,
+  	borderRadius: 10,
   	backgroundColor: '#fff',
   	elevation: 2
   },
+  logo: {
+  	width: Dimensions.get('window').width / 2 - 100,
+  	height: Dimensions.get('window').width / 2 - 100,
+  	resizeMode: 'contain'
+  },
   empty: {
-	flex: 1,
+		flex: 1,
   	height: Dimensions.get('window').width / 2 - 40,
   	margin: 20,
   	justifyContent: 'center',
